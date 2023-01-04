@@ -14,7 +14,8 @@
     "migration:revert": "npm run typeorm migration:revert",
     "migration:create": "typeorm migration:create ./src/modules/$npm_config_path/migrations/$npm_config_name",
     "prepare": "husky install",
-    "transform:array": "ts-node scripts/transform-array.ts"
+    "transform:array": "ts-node scripts/transform-array.ts",
+    "ls": "ts-node scripts/list-dir-csv-files.ts"
   },
   "author": "Agreena",
   "license": "ISC",

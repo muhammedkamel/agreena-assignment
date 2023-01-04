@@ -1,4 +1,4 @@
-const transformArray = (array: string[]) => array.map((ele: string) => {
+const transformArray = (array: string[]) : any => array.map((ele: string) => {
   const num = Number(ele);
   
   return isNaN(num) ? ele : num;
