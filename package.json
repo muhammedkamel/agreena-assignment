@@ -15,7 +15,8 @@
     "migration:create": "typeorm migration:create ./src/modules/$npm_config_path/migrations/$npm_config_name",
     "prepare": "husky install",
     "transform:array": "ts-node scripts/transform-array.ts",
-    "ls": "ts-node scripts/list-dir-csv-files.ts"
+    "ls": "ts-node scripts/list-dir-csv-files.ts",
+    "string:has:digit": "ts-node scripts/str-has-digit.ts"
   },
   "author": "Agreena",
   "license": "ISC",
