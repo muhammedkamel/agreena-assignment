@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {Point} from "geojson";
 
 @Entity()
 export class User {
@@ -10,6 +11,12 @@ export class User {
 
   @Column()
   public hashedPassword: string;
+
+  @Column()
+  public address: string
+
+  @Column("geometry")
+  public coordinates: Point
 
   @CreateDateColumn()
   public createdAt: Date;
