@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import {Point} from "geojson";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Point } from "geojson";
+import { Farm } from "../../farms/entities/farm.entity"
 
 @Entity()
 export class User {
@@ -15,7 +16,7 @@ export class User {
   @Column()
   public address: string
 
-  @Column("geometry")
+  @Column("point")
   public coordinates: Point
 
   @CreateDateColumn()
@@ -23,4 +24,7 @@ export class User {
 
   @UpdateDateColumn()
   public updatedAt: Date;
+
+  @OneToMany(() => Farm, (farm) => farm.user)
+  public readonly farms: Farm[];
 }
