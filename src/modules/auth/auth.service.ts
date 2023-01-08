@@ -1,13 +1,15 @@
 import * as bcrypt from "bcrypt";
 import config from "config/config";
 import { fromUnixTime } from "date-fns";
-import { UnprocessableEntityError } from "errors/errors";
-import { decode, sign } from "jsonwebtoken";
+import { UnAuthorized, UnprocessableEntityError } from "errors/errors";
+import { decode, sign, verify } from "jsonwebtoken";
 import { UsersService } from "modules/users/users.service";
 import { Repository } from "typeorm";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { AccessToken } from "./entities/access-token.entity";
 import dataSource from "orm/orm.config";
+import { AccessTokenDto } from "./dto/access-token.dto";
+import { MoreThanDate } from "helpers/typeorm-operators";
 
 export class AuthService {
   private readonly accessTokenRepository: Repository<AccessToken>;
@@ -53,5 +55,28 @@ export class AuthService {
 
   private async validatePassword(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
+  }
+
+  public async authenticate(accessTokenDto: AccessTokenDto) {
+    try{
+      verify(accessTokenDto.token, config.JWT_SECRET)
+    } catch(error: any) {
+      throw new UnAuthorized("Invalid access token")
+    }
+
+    const accessToken = await this.findActiveAccessToken(accessTokenDto.token)
+
+    if(!accessToken) throw new UnAuthorized("Invalid access token")
+
+    return accessToken.user
+  }
+
+  public async findActiveAccessToken(token: string): Promise<AccessToken | null> {
+    return this.accessTokenRepository.createQueryBuilder("token")
+      .where({ token })
+      .andWhere({ expiresAt: MoreThanDate(new Date()) })
+      .select(["token.id", "user.id", "user.email"])
+      .innerJoin("token.user", "user")
+      .getOne()
   }
 }
