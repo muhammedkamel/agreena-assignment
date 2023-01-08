@@ -21,6 +21,7 @@
   "author": "Agreena",
   "license": "ISC",
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.3.26",
     "@types/geojson": "^7946.0.10",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
@@ -31,7 +32,8 @@
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.10"
+    "typeorm": "^0.3.10",
+    "wkx": "^0.5.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

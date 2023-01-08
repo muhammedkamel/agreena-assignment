@@ -36,7 +36,12 @@ describe("UsersController", () => {
   });
 
   describe("POST /users", () => {
-    const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
+    const createUserDto: CreateUserDto = { 
+      email: "user@test.com", 
+      password: "password", 
+      address: "Dyarb negm", 
+      coordinates: { type: "Point", coordinates: [ 31.442761, 30.7532224 ] }
+    };
 
     it("should create new user", async () => {
       const res = await agent.post("/api/users").send(createUserDto);
@@ -45,6 +50,7 @@ describe("UsersController", () => {
       expect(res.body).toMatchObject({
         id: expect.any(String),
         email: expect.stringContaining(createUserDto.email) as string,
+        address: expect.stringContaining(createUserDto.address) as string,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       });

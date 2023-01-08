@@ -34,7 +34,12 @@ describe("UsersController", () => {
   });
 
   describe(".createUser", () => {
-    const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
+    const createUserDto: CreateUserDto = { 
+      email: "user@test.com", 
+      password: "password", 
+      address: "Dyarb negm", 
+      coordinates: { type: "Point", coordinates: [ 31.442761, 30.7532224 ] }
+    };
 
     it("should create new user", async () => {
       const createdUser = await usersService.createUser(createUserDto);
@@ -56,7 +61,12 @@ describe("UsersController", () => {
   });
 
   describe(".findOneBy", () => {
-    const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
+    const createUserDto: CreateUserDto = { 
+      email: "user@test.com", 
+      password: "password", 
+      address: "Dyarb negm", 
+      coordinates: { type: "Point", coordinates: [ 31.442761, 30.7532224 ] }
+    };
 
     it("should get user by provided param", async () => {
       const user = await usersService.createUser(createUserDto);

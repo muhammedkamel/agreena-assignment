@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsEmpty, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { Point } from "geojson";
 
 export class CreateUserDto {
   @IsEmail()
@@ -8,4 +9,12 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   public password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public address: string;
+
+  @IsEmpty()
+  @IsOptional()
+  public coordinates: Point;
 }

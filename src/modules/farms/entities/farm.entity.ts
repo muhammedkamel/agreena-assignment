@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Point } from "geojson";
 import { User } from "../../users/entities/user.entity"
 
@@ -13,7 +13,8 @@ export class Farm {
   @Column()
   public address: string
 
-  @Column("point")
+  @Column({ type: "geometry", spatialFeatureType: "Point", srid: 4326 })
+  @Index({ spatial: true })
   public coordinates: Point
 
   @Column("decimal")
