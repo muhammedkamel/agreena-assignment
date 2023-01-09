@@ -3,6 +3,7 @@ import { Point } from "geojson";
 import { GoogleMapService } from "helpers/google-maps-services";
 import { CreateFarmDto } from "./dto/create-farm.dto";
 import { DeleteFarmDto } from "./dto/delete-farm.dto";
+import { GetFarmsDto } from "./dto/get-farms-dto";
 import { UpdateFarmDto } from "./dto/update-farm.dto";
 import { FarmsService } from "./farms.service";
 
@@ -51,7 +52,15 @@ export class FarmsController {
     }
   }
 
-  // public async get(req: Request, res: Response, next: NextFunction) {
-    
-  // }
+  public async get(req: Request, res: Response, next: NextFunction) {
+    try {
+      const getFarmsDto = { ...req.params, ...req.body } as GetFarmsDto
+      const farms = await this.farmsService.getFarms(getFarmsDto);
+
+      res.status(200).send(farms);
+    } catch (error) {
+      console.log(error)
+      next(error);
+    }
+  }
 }

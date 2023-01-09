@@ -7,6 +7,10 @@ import { GoogleMapService } from "helpers/google-maps-services";
 import { Point } from "geojson";
 import { ResourceNotFoundError } from "errors/errors";
 import { DeleteFarmDto } from "./dto/delete-farm.dto";
+import { GetFarmsDto } from "./dto/get-farms-dto";
+import { LatLng } from "@googlemaps/google-maps-services-js";
+import { FarmsResDto } from "./dto/farms-res-dto";
+import { plainToInstance } from "class-transformer";
 
 export class FarmsService {
   private readonly farmsRepo: Repository<Farm>;
@@ -60,4 +64,31 @@ export class FarmsService {
 
     await this.farmsRepo.remove(farm)
   }
+
+  // @TODO add pagination
+  public async getFarms(getFarmsDto: GetFarmsDto): Promise<FarmsResDto[]> {
+    const farms = await this.farmsRepo.createQueryBuilder("farm")
+      .select([ "farm.id", "farm.name", "farm.address", "farm.size", "farm.yield", "farm.coordinates", "user.email" ])
+      .innerJoin("farm.user", "user")
+      .getMany()
+    
+    const origins = []
+    const destinations = []
+
+    const userCoordinates = getFarmsDto.user.coordinates as Point
+    for (const farm of farms) {
+      const farmCoordinates = farm.coordinates as Point
+
+      origins.push(userCoordinates.coordinates as LatLng)
+      destinations.push(farmCoordinates.coordinates as LatLng)
+    }
+
+    const distancesMatrix = await GoogleMapService.distancesMatrix({ origins, destinations })
+    
+    return farms.map(({ user, ...farm }, i) => plainToInstance(
+        FarmsResDto, 
+        { drivingDistance: distancesMatrix[i].elements[1].distance.text, owner: user, ...farm })
+      )
+  }
+  
 }
