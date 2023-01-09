@@ -1,7 +1,7 @@
 import * as bcrypt from "bcrypt";
 import config from "config/config";
 import { fromUnixTime } from "date-fns";
-import { UnAuthorized, UnprocessableEntityError } from "errors/errors";
+import { UnAuthorizedError, UnprocessableEntityError } from "errors/errors";
 import { decode, sign, verify } from "jsonwebtoken";
 import { UsersService } from "modules/users/users.service";
 import { Repository } from "typeorm";
@@ -61,12 +61,12 @@ export class AuthService {
     try{
       verify(accessTokenDto.token, config.JWT_SECRET)
     } catch(error: any) {
-      throw new UnAuthorized("Invalid access token")
+      throw new UnAuthorizedError("Invalid access token")
     }
 
     const accessToken = await this.findActiveAccessToken(accessTokenDto.token)
 
-    if(!accessToken) throw new UnAuthorized("Invalid access token")
+    if(!accessToken) throw new UnAuthorizedError("Invalid access token")
 
     return accessToken.user
   }

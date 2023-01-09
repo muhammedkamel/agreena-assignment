@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Point } from "geojson";
 import { GoogleMapService } from "helpers/google-maps-services";
 import { CreateFarmDto } from "./dto/create-farm.dto";
+import { UpdateFarmDto } from "./dto/update-farm.dto";
 import { FarmsService } from "./farms.service";
 
 export class FarmsController {
@@ -14,21 +15,31 @@ export class FarmsController {
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       const createFarmDto = req.body as CreateFarmDto
-      console.log(req.body, createFarmDto)
+
+      // @TODO move to service
       const { geometry: { location } } = await GoogleMapService.geocode(createFarmDto.address)
       createFarmDto.coordinates = { coordinates: [location.lng, location.lat] } as Point
 
-      const user = await this.farmsService.createFarm(createFarmDto);
-      res.status(201).send(user);
+      const farm = await this.farmsService.createFarm(createFarmDto);
+      res.status(201).send(farm);
     } catch (error) {
       console.log(error)
       next(error);
     }
   }
 
-  // public async update(req: Request, res: Response, next: NextFunction) {
-    
-  // }
+  public async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const updateFarmDto = req.body as UpdateFarmDto
+      const farmId: string = req.params.id
+
+      const farm = await this.farmsService.updateFarm(farmId, updateFarmDto);
+      res.status(200).send(farm);
+    } catch (error) {
+      console.log(error)
+      next(error);
+    }
+  }
 
   // public async delete(req: Request, res: Response, next: NextFunction) {
     
