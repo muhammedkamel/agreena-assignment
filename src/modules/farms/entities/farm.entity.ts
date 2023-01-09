@@ -9,6 +9,7 @@ export class Farm {
   public readonly id: string;
 
   @Column()
+  @Index()
   public name: string;
 
   @Column()
@@ -22,9 +23,11 @@ export class Farm {
   public size: number;
 
   @Column("decimal")
+  @Index()
   public yield: number;
 
   @CreateDateColumn()
+  @Index()
   public createdAt: Date;
 
   @UpdateDateColumn()
