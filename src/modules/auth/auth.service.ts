@@ -75,7 +75,7 @@ export class AuthService {
     return this.accessTokenRepository.createQueryBuilder("token")
       .where({ token })
       .andWhere({ expiresAt: MoreThanDate(new Date()) })
-      .select(["token.id", "user.id", "user.email", "user.coordinates"])
+      .select(["token.id", "user.id", "user.email", "user.address"])
       .innerJoin("token.user", "user")
       .getOne()
   }

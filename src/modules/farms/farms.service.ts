@@ -8,9 +8,9 @@ import { Point } from "geojson";
 import { ResourceNotFoundError } from "errors/errors";
 import { DeleteFarmDto } from "./dto/delete-farm.dto";
 import { GetFarmsDto } from "./dto/get-farms-dto";
-import { LatLng } from "@googlemaps/google-maps-services-js";
 import { FarmsResDto } from "./dto/farms-res-dto";
 import { plainToInstance } from "class-transformer";
+import { SortFieldMap, SortValueMap } from "./enums/sort";
 
 export class FarmsService {
   private readonly farmsRepo: Repository<Farm>;
@@ -65,37 +65,52 @@ export class FarmsService {
     await this.farmsRepo.remove(farm)
   }
 
-  // @TODO add pagination
+  /**
+   * @todo add pagination
+   * @note For sorting by driving distance, it is not optimal to sort them on the fly.
+   * Instead we should use a warming mechanism that can calculate all the distances,
+   * foreach user against all the farms and set them in the db with the appropriate indexes
+   */
   public async getFarms(getFarmsDto: GetFarmsDto): Promise<FarmsResDto[]> {
-   const farms = await this.filterFarms(getFarmsDto)
+    const farms = await this.filterFarms(getFarmsDto)
 
     const origins = []
     const destinations = []
 
-    const userCoordinates = getFarmsDto.user.coordinates as Point
     for (const farm of farms) {
-      const farmCoordinates = farm.coordinates as Point
-
-      origins.push(userCoordinates.coordinates as LatLng)
-      destinations.push(farmCoordinates.coordinates as LatLng)
+      origins.push(getFarmsDto.user.address)
+      destinations.push(farm.address)
     }
 
     const distancesMatrix = await GoogleMapService.distancesMatrix({ origins, destinations })
-    
-    return farms.map(({ user, ...farm }, i) => plainToInstance(
+
+    const farmsDtos = distancesMatrix.filter((ele, i) => ele.elements[i].distance).map((ele, i) => {
+      const {user, ...farm} = farms[i]
+
+      return plainToInstance(
         FarmsResDto, 
-        { drivingDistance: distancesMatrix[i].elements[1].distance.text, owner: user, ...farm })
+        { drivingDistance: ele.elements[i].distance.value, owner: user, ...farm }
       )
+    })
+
+    if(getFarmsDto.sort === SortFieldMap.DRIVING_DISTANCE) farmsDtos.sort((a, b) => a.drivingDistance - b.drivingDistance)
+
+    return farmsDtos
   }
 
   public async filterFarms(getFarmsDto: GetFarmsDto): Promise<Farm[]> {
-     const qb = this.farmsRepo.createQueryBuilder("farm")
-      .select([ "farm.id", "farm.name", "farm.address", "farm.size", "farm.yield", "farm.coordinates", "user.email" ])
+    const qb = this.farmsRepo.createQueryBuilder("farm")
+      .select([ "farm.id", "farm.name", "farm.address", "farm.size", "farm.yield", "user.email" ])
       .innerJoin("farm.user", "user");
 
     if(getFarmsDto.outliers) qb.groupBy("farm.id, user.id, user.email").having("farm.yield * 100 / AVG(farm.yield) <> 30")
       
-    if(getFarmsDto.sort) qb.orderBy({[`farm.${getFarmsDto.sort}`]: "ASC"})
+    if(getFarmsDto.sort && getFarmsDto.sort != SortFieldMap.DRIVING_DISTANCE) {
+      qb.orderBy(
+        `farm.${SortFieldMap[getFarmsDto.sort as keyof typeof SortFieldMap]}`,
+        SortValueMap[getFarmsDto.sort as keyof typeof SortValueMap] 
+      )
+    }
 
     return qb.getMany()
   }

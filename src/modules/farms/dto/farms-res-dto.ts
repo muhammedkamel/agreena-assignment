@@ -17,7 +17,8 @@ export class FarmsResDto {
 
   public yield: number
 
-  public drivingDistance: string
+  @Transform(({value}) => `${(value / 10**6).toFixed(3)} km`)
+  public drivingDistance: number
   
   @Transform(({ value }) => {
     const farm = value as User

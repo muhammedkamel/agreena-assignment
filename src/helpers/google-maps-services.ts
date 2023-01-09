@@ -1,4 +1,4 @@
-import { Client, GeocodeResult, LatLng, DistanceMatrixRow } from "@googlemaps/google-maps-services-js";
+import { Client, GeocodeResult, DistanceMatrixRow, TravelMode } from "@googlemaps/google-maps-services-js";
 import config from "config/config"
 import { GoogleMapsIntegrationError } from "errors/errors";
 
@@ -22,7 +22,7 @@ export class GoogleMapService {
   }
 
   public static async distancesMatrix(
-    { origins, destinations }: { [key: string]: LatLng[] }, 
+    { origins, destinations }: { [key: string]: string[] }, 
     key: string = KEY
     ): Promise<DistanceMatrixRow[]> {
     try{
@@ -30,7 +30,8 @@ export class GoogleMapService {
         params: { 
           key,
           origins,
-          destinations 
+          destinations,
+          mode: TravelMode.driving
         } 
     })
 

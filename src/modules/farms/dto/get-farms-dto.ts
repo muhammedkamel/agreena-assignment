@@ -1,11 +1,11 @@
-import { IsBoolean, IsEnum, IsNotEmptyObject, IsObject, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsIn, IsNotEmptyObject, IsObject, IsOptional, IsString } from "class-validator";
 import { User } from "modules/users/entities/user.entity";
-import { Sort } from "../enums/sort";
+import { SortFieldMap } from "../enums/sort";
 
 export class GetFarmsDto {
   @IsOptional()
   @IsString()
-  @IsEnum(Sort)
+  @IsIn(Object.values(SortFieldMap).map(key => key.toLocaleLowerCase()))
   public sort: string
 
   @IsOptional()
