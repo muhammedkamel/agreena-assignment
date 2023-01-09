@@ -54,7 +54,7 @@ export class FarmsController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const getFarmsDto = { ...req.params, ...req.body } as GetFarmsDto
+      const getFarmsDto = { ...req.query, ...req.body } as GetFarmsDto
       const farms = await this.farmsService.getFarms(getFarmsDto);
 
       res.status(200).send(farms);

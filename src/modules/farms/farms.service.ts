@@ -67,11 +67,8 @@ export class FarmsService {
 
   // @TODO add pagination
   public async getFarms(getFarmsDto: GetFarmsDto): Promise<FarmsResDto[]> {
-    const farms = await this.farmsRepo.createQueryBuilder("farm")
-      .select([ "farm.id", "farm.name", "farm.address", "farm.size", "farm.yield", "farm.coordinates", "user.email" ])
-      .innerJoin("farm.user", "user")
-      .getMany()
-    
+   const farms = await this.filterFarms(getFarmsDto)
+
     const origins = []
     const destinations = []
 
@@ -90,5 +87,17 @@ export class FarmsService {
         { drivingDistance: distancesMatrix[i].elements[1].distance.text, owner: user, ...farm })
       )
   }
-  
+
+  public async filterFarms(getFarmsDto: GetFarmsDto): Promise<Farm[]> {
+     const qb = this.farmsRepo.createQueryBuilder("farm")
+      .select([ "farm.id", "farm.name", "farm.address", "farm.size", "farm.yield", "farm.coordinates", "user.email" ])
+      .innerJoin("farm.user", "user");
+
+    if(getFarmsDto.outliers) qb.groupBy("farm.id, user.id, user.email").having("farm.yield * 100 / AVG(farm.yield) <> 30")
+      
+    if(getFarmsDto.sort) qb.orderBy({[`farm.${getFarmsDto.sort}`]: "ASC"})
+
+    return qb.getMany()
+  }
+
 }
