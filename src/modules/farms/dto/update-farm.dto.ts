@@ -1,9 +1,12 @@
-import { IsEmpty, IsNotEmpty, IsNotEmptyObject, IsNumber, IsObject, IsOptional, IsString, ValidateIf } from "class-validator";
+import { IsEmpty, IsNotEmpty, IsNotEmptyObject, IsNumber, IsObject, IsOptional, IsString, IsUUID, ValidateIf } from "class-validator";
 import { Point } from "geojson";
 import { User } from "modules/users/entities/user.entity";
 
 export class UpdateFarmDto {
-  
+  @IsUUID()
+  @IsNotEmpty()
+  public id: string
+
   @ValidateIf((o):boolean => {
     const updateFarmDto = o as UpdateFarmDto
     return Boolean(updateFarmDto.address || updateFarmDto.coordinates || updateFarmDto.size || updateFarmDto.yield)

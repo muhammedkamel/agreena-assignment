@@ -6,6 +6,7 @@ import { UpdateFarmDto } from "./dto/update-farm.dto";
 import { GoogleMapService } from "helpers/google-maps-services";
 import { Point } from "geojson";
 import { ResourceNotFoundError } from "errors/errors";
+import { DeleteFarmDto } from "./dto/delete-farm.dto";
 
 export class FarmsService {
   private readonly farmsRepo: Repository<Farm>;
@@ -25,8 +26,8 @@ export class FarmsService {
     return this.farmsRepo.save(newFarm);
   }
 
-  public async updateFarm(id: string, updateFarmDto: UpdateFarmDto): Promise<Farm> {
-    const farm = await this.findUserFarmById(id, updateFarmDto.user.id)
+  public async updateFarm(updateFarmDto: UpdateFarmDto): Promise<Farm> {
+    const farm = await this.findUserFarmById(updateFarmDto)
 
     if(!farm) throw new ResourceNotFoundError("Farm is not exists")
 
@@ -40,15 +41,23 @@ export class FarmsService {
     return this.farmsRepo.save(farm)
   }
 
-  public async findUserFarmById(id: string, userId: string): Promise<Farm | null> {
+  public async findUserFarmById(data: UpdateFarmDto | DeleteFarmDto): Promise<Farm | null> {
     return this.farmsRepo.findOne({
       relations: ["user"],
       where: {
-        id,
+        id: data.id,
         user: {
-          id: userId
+          id: data.user.id
         }
       }
     })
+  }
+
+  public async deleteFarm(deleteFarmDto: DeleteFarmDto): Promise<void> {
+    const farm = await this.findUserFarmById(deleteFarmDto)
+
+    if(!farm) throw new ResourceNotFoundError("Farm is not exists")
+
+    await this.farmsRepo.remove(farm)
   }
 }
